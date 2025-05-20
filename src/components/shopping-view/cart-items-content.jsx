@@ -66,7 +66,11 @@ function UserCartItemsContent({ cartItem }) {
   async function handleCartItemDelete(getCartItem) {
     try {
       const result = await dispatch(
-        deleteCartItem({ userId: user?.id, productId: getCartItem?.productId })
+        deleteCartItem({ 
+          userId: user?.id, 
+          productId: getCartItem?.productId,
+          size: getCartItem?.size 
+        })
       ).unwrap();
 
       if (result?.success) {
