@@ -33,62 +33,90 @@ function ShoppingCheckout() {
       : 0;
 
   function handleInitiatePaypalPayment() {
-    if (cartItems.length === 0) {
+    if (!cartItems || !cartItems.items || cartItems.items.length === 0) {
       toast({
         title: "Giỏ hàng trống",
         variant: "destructive",
       });
-
       return;
     }
+
     if (currentSelectedAddress === null) {
       toast({
         title: "Vui lòng chọn địa chỉ",
         variant: "destructive",
       });
-
       return;
     }
 
-    const orderData = {
-      userId: user?.id,
-      cartId: cartItems?._id,
-      cartItems: cartItems.items.map((singleCartItem) => ({
-        productId: singleCartItem?.productId,
-        title: singleCartItem?.title,
-        image: singleCartItem?.image,
-        price:
-          singleCartItem?.salePrice > 0
-            ? singleCartItem?.salePrice
-            : singleCartItem?.price,
-        quantity: singleCartItem?.quantity,
-      })),
-      addressInfo: {
-        addressId: currentSelectedAddress?._id,
-        address: currentSelectedAddress?.address,
-        city: currentSelectedAddress?.city,
-       
-        phone: currentSelectedAddress?.phone,
-        notes: currentSelectedAddress?.notes,
-      },
-      orderStatus: "pending",
-      paymentMethod: "paypal",
-      paymentStatus: "pending",
-      totalAmount: totalCartAmount,
-      orderDate: new Date(),
-      orderUpdateDate: new Date(),
-      paymentId: "",
-      payerId: "",
-    };
+    // Calculate total amount
+    const totalCartAmount = cartItems.items.reduce(
+      (sum, currentItem) =>
+        sum +
+        (currentItem?.salePrice > 0
+          ? currentItem?.salePrice
+          : currentItem?.price) *
+          currentItem?.quantity,
+      0
+    );
 
-    dispatch(createNewOrder(orderData)).then((data) => {
-      console.log(data, "sangam");
-      if (data?.payload?.success) {
-        setIsPaymemntStart(true);
-      } else {
+    console.log("Cart items:", cartItems.items);
+    console.log("Total amount:", totalCartAmount);
+
+      const orderData = {
+        userId: user?.id,
+        cartId: cartItems?._id,
+        cartItems: cartItems.items.map((singleCartItem) => {
+          const price = singleCartItem?.salePrice > 0 ? singleCartItem?.salePrice : singleCartItem?.price;
+          console.log(`Item ${singleCartItem?.title} - Price: ${price}, Quantity: ${singleCartItem?.quantity}`);
+          return {
+            productId: singleCartItem?.productId,
+            title: singleCartItem?.title,
+            image: singleCartItem?.image,
+            price: price,
+            quantity: singleCartItem?.quantity,
+            size: singleCartItem?.size
+          };
+        }),
+        addressInfo: {
+          addressId: currentSelectedAddress?._id,
+          address: currentSelectedAddress?.address,
+          city: currentSelectedAddress?.city,
+          phone: currentSelectedAddress?.phone,
+          notes: currentSelectedAddress?.notes,
+        },
+        orderStatus: "pending",
+        paymentMethod: "paypal",
+        paymentStatus: "pending",
+        totalAmount: totalCartAmount,
+        orderDate: new Date(),
+        orderUpdateDate: new Date(),
+        paymentId: "",
+        payerId: "",
+      };
+
+    console.log("Creating order with data:", orderData);
+
+    dispatch(createNewOrder(orderData))
+      .then((data) => {
+        if (data?.payload?.success) {
+          setIsPaymemntStart(true);
+        } else {
+          toast({
+            title: data?.payload?.message || "Lỗi khi tạo đơn hàng",
+            variant: "destructive",
+          });
+          setIsPaymemntStart(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Error creating order:", error);
+        toast({
+          title: "Lỗi khi tạo đơn hàng",
+          variant: "destructive",
+        });
         setIsPaymemntStart(false);
-      }
-    });
+      });
   }
 
   if (approvalURL) {
@@ -114,7 +142,7 @@ function ShoppingCheckout() {
           <div className="mt-8 space-y-4">
             <div className="flex justify-between">
               <span className="font-bold">Tổng</span>
-              <span className="font-bold">${totalCartAmount}</span>
+              <span className="font-bold">{totalCartAmount.toLocaleString('vi-VN')} VND</span>
             </div>
           </div>
           <div className="mt-4 w-full">

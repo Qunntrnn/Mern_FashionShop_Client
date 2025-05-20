@@ -76,7 +76,7 @@ function ShoppingOrders() {
                         {orderItem?.orderStatus}
                       </Badge>
                     </TableCell>
-                    <TableCell>${orderItem?.totalAmount}</TableCell>
+                    <TableCell>{orderItem?.totalAmount.toLocaleString('vi-VN')} VND</TableCell>
                     <TableCell>
                       <Dialog
                         open={openDetailsDialog}

@@ -12,10 +12,18 @@ import { Label } from "../ui/label";
 import StarRatingComponent from "../common/star-rating";
 import { useEffect, useState } from "react";
 import { addReview, getReviews } from "@/store/shop/review-slice";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 function ProductDetailsDialog({ open, setOpen, productDetails }) {
   const [reviewMsg, setReviewMsg] = useState("");
   const [rating, setRating] = useState(0);
+  const [selectedSize, setSelectedSize] = useState("");
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.shopCart);
@@ -25,40 +33,49 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
 
   function handleRatingChange(getRating) {
     console.log(getRating, "getRating");
-
     setRating(getRating);
   }
 
   function handleAddToCart(getCurrentProductId, getTotalStock) {
+    if (!selectedSize) {
+      toast({
+        title: "Vui lòng chọn size",
+        variant: "destructive",
+      });
+      return;
+    }
+
     let getCartItems = cartItems.items || [];
 
     if (getCartItems.length) {
       const indexOfCurrentItem = getCartItems.findIndex(
-        (item) => item.productId === getCurrentProductId
+        (item) => item.productId === getCurrentProductId && item.size === selectedSize
       );
       if (indexOfCurrentItem > -1) {
         const getQuantity = getCartItems[indexOfCurrentItem].quantity;
-        if (getQuantity + 1 > getTotalStock) {
+        const selectedSizeStock = productDetails.sizes.find(s => s.size === selectedSize)?.stock || 0;
+        if (getQuantity + 1 > selectedSizeStock) {
           toast({
-            title: `Only ${getQuantity} quantity can be added for this item`,
+            title: `Chỉ còn ${selectedSizeStock} sản phẩm cho size ${selectedSize}`,
             variant: "destructive",
           });
-
           return;
         }
       }
     }
+
     dispatch(
       addToCart({
         userId: user?.id,
         productId: getCurrentProductId,
+        size: selectedSize,
         quantity: 1,
       })
     ).then((data) => {
       if (data?.payload?.success) {
         dispatch(fetchCartItems(user?.id));
         toast({
-          title: "Product is added to cart",
+          title: "Đã thêm vào giỏ hàng",
         });
       }
     });
@@ -69,6 +86,7 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
     dispatch(setProductDetails());
     setRating(0);
     setReviewMsg("");
+    setSelectedSize("");
   }
 
   function handleAddReview() {
@@ -124,17 +142,13 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
             </p>
           </div>
           <div className="flex items-center justify-between">
-            <p
-              className={`text-3xl font-bold text-primary ${
-                productDetails?.salePrice > 0 ? "line-through" : ""
-              }`}
-            >
-              ${productDetails?.price}
-            </p>
+            <span className="text-lg line-through text-gray-500">
+              {productDetails?.price.toLocaleString('vi-VN')} VND
+            </span>
             {productDetails?.salePrice > 0 ? (
-              <p className="text-2xl font-bold text-muted-foreground">
-                ${productDetails?.salePrice}
-              </p>
+              <span className="text-lg font-bold">
+                {productDetails?.salePrice.toLocaleString('vi-VN')} VND
+              </span>
             ) : null}
           </div>
           <div className="flex items-center gap-2 mt-2">
@@ -145,7 +159,26 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
               ({averageReview.toFixed(2)})
             </span>
           </div>
-          <div className="mt-5 mb-5">
+          <div className="mt-5 mb-5 space-y-4">
+            <div className="space-y-2">
+              <Label>Chọn size</Label>
+              <Select value={selectedSize} onValueChange={setSelectedSize}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Chọn size" />
+                </SelectTrigger>
+                <SelectContent>
+                  {productDetails?.sizes.map((size) => (
+                    <SelectItem 
+                      key={size.size} 
+                      value={size.size}
+                      disabled={size.stock === 0}
+                    >
+                      {size.size} ({size.stock} sản phẩm)
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             {productDetails?.totalStock === 0 ? (
               <Button className="w-full opacity-60 cursor-not-allowed">
                 Hết hàng

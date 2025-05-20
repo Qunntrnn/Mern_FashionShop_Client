@@ -27,6 +27,7 @@ const initialFormData = {
   brand: "",
   price: "",
   salePrice: "",
+  sizes: [],
   totalStock: "",
   averageReview: 0,
 };
@@ -44,14 +45,35 @@ function AdminProducts() {
   const dispatch = useDispatch();
   const { toast } = useToast();
 
+  const updateFormData = (newData) => {
+    // Calculate totalStock from sizes array
+    const totalStock = newData.sizes?.reduce((sum, size) => sum + (size.stock || 0), 0) || 0;
+    setFormData({
+      ...newData,
+      totalStock: totalStock.toString()
+    });
+  };
+
   function onSubmit(event) {
     event.preventDefault();
+
+    // Format data before sending
+    const formattedData = {
+      ...formData,
+      price: Number(formData.price),
+      salePrice: Number(formData.salePrice),
+      totalStock: Number(formData.totalStock),
+      sizes: formData.sizes.map(size => ({
+        size: size.size,
+        stock: Number(size.stock)
+      }))
+    };
 
     currentEditedId !== null
       ? dispatch(
           editProduct({
             id: currentEditedId,
-            formData,
+            formData: formattedData,
           })
         ).then((data) => {
           console.log(data, "edit");
@@ -65,7 +87,7 @@ function AdminProducts() {
         })
       : dispatch(
           addNewProduct({
-            ...formData,
+            ...formattedData,
             image: uploadedImageUrl,
           })
         ).then((data) => {
@@ -92,7 +114,13 @@ function AdminProducts() {
   function isFormValid() {
     return Object.keys(formData)
       .filter((currentKey) => currentKey !== "averageReview")
-      .map((key) => formData[key] !== "")
+      .map((key) => {
+        if (key === "sizes") {
+          return formData[key] && formData[key].length > 0 && 
+                 formData[key].every(size => size.size && size.stock > 0);
+        }
+        return formData[key] !== "";
+      })
       .every((item) => item);
   }
 
@@ -149,7 +177,7 @@ function AdminProducts() {
             <CommonForm
               onSubmit={onSubmit}
               formData={formData}
-              setFormData={setFormData}
+              setFormData={updateFormData}
               buttonText={currentEditedId !== null ? "Sửa" : "Thêm"}
               formControls={addProductFormElements}
               isBtnDisabled={!isFormValid()}

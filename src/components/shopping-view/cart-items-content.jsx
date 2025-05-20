@@ -1,7 +1,7 @@
 import { Minus, Plus, Trash } from "lucide-react";
 import { Button } from "../ui/button";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteCartItem, updateCartQuantity } from "@/store/shop/cart-slice";
+import { deleteCartItem, updateCartQuantity, fetchCartItems } from "@/store/shop/cart-slice";
 import { useToast } from "../ui/use-toast";
 
 function UserCartItemsContent({ cartItem }) {
@@ -11,64 +11,78 @@ function UserCartItemsContent({ cartItem }) {
   const dispatch = useDispatch();
   const { toast } = useToast();
 
-  function handleUpdateQuantity(getCartItem, typeOfAction) {
-    if (typeOfAction == "plus") {
-      let getCartItems = cartItems.items || [];
+  async function handleUpdateQuantity(getCartItem, typeOfAction) {
+    try {
+      if (typeOfAction == "plus") {
+        let getCartItems = cartItems.items || [];
 
-      if (getCartItems.length) {
-        const indexOfCurrentCartItem = getCartItems.findIndex(
-          (item) => item.productId === getCartItem?.productId
-        );
+        if (getCartItems.length) {
+          const indexOfCurrentCartItem = getCartItems.findIndex(
+            (item) => item.productId === getCartItem?.productId && item.size === getCartItem?.size
+          );
 
-        const getCurrentProductIndex = productList.findIndex(
-          (product) => product._id === getCartItem?.productId
-        );
-        const getTotalStock = productList[getCurrentProductIndex].totalStock;
-
-        console.log(getCurrentProductIndex, getTotalStock, "getTotalStock");
-
-        if (indexOfCurrentCartItem > -1) {
-          const getQuantity = getCartItems[indexOfCurrentCartItem].quantity;
-          if (getQuantity + 1 > getTotalStock) {
-            toast({
-              title: `Only ${getQuantity} quantity can be added for this item`,
-              variant: "destructive",
-            });
-
-            return;
+          if (indexOfCurrentCartItem > -1) {
+            const getQuantity = getCartItems[indexOfCurrentCartItem].quantity;
+            const selectedSizeStock = productList.find(p => p._id === getCartItem?.productId)?.sizes.find(s => s.size === getCartItem?.size)?.stock || 0;
+            
+            if (getQuantity + 1 > selectedSizeStock) {
+              toast({
+                title: `Chỉ còn ${selectedSizeStock} sản phẩm cho size ${getCartItem?.size}`,
+                variant: "destructive",
+              });
+              return;
+            }
           }
         }
       }
-    }
 
-    dispatch(
-      updateCartQuantity({
-        userId: user?.id,
-        productId: getCartItem?.productId,
-        quantity:
-          typeOfAction === "plus"
-            ? getCartItem?.quantity + 1
-            : getCartItem?.quantity - 1,
-      })
-    ).then((data) => {
-      if (data?.payload?.success) {
+      const newQuantity = typeOfAction === "plus" ? getCartItem?.quantity + 1 : getCartItem?.quantity - 1;
+
+      const result = await dispatch(
+        updateCartQuantity({
+          userId: user?.id,
+          productId: getCartItem?.productId,
+          size: getCartItem?.size,
+          quantity: newQuantity,
+        })
+      ).unwrap();
+
+      if (result?.success) {
+        // Fetch latest cart data after successful update
+        await dispatch(fetchCartItems(user.id));
         toast({
           title: "Cập nhật thành công",
         });
       }
-    });
+    } catch (error) {
+      console.error("Error updating cart quantity:", error);
+      toast({
+        title: "Lỗi khi cập nhật số lượng",
+        variant: "destructive",
+      });
+    }
   }
 
-  function handleCartItemDelete(getCartItem) {
-    dispatch(
-      deleteCartItem({ userId: user?.id, productId: getCartItem?.productId })
-    ).then((data) => {
-      if (data?.payload?.success) {
+  async function handleCartItemDelete(getCartItem) {
+    try {
+      const result = await dispatch(
+        deleteCartItem({ userId: user?.id, productId: getCartItem?.productId })
+      ).unwrap();
+
+      if (result?.success) {
+        // Fetch latest cart data after successful deletion
+        await dispatch(fetchCartItems(user.id));
         toast({
           title: "Xoá thành công",
         });
       }
-    });
+    } catch (error) {
+      console.error("Error deleting cart item:", error);
+      toast({
+        title: "Lỗi khi xoá sản phẩm",
+        variant: "destructive",
+      });
+    }
   }
 
   return (
@@ -99,17 +113,14 @@ function UserCartItemsContent({ cartItem }) {
             onClick={() => handleUpdateQuantity(cartItem, "plus")}
           >
             <Plus className="w-4 h-4" />
-            <span className="sr-only">Decrease</span>
+            <span className="sr-only">Increase</span>
           </Button>
         </div>
       </div>
       <div className="flex flex-col items-end">
         <p className="font-semibold">
-          
-          ${(
-            (cartItem?.salePrice > 0 ? cartItem?.salePrice : cartItem?.price) *
-            cartItem?.quantity
-          ).toFixed(2)}
+          {((cartItem?.salePrice > 0 ? cartItem?.salePrice : cartItem?.price) *
+            cartItem?.quantity).toLocaleString('vi-VN')} VND
         </p>
         <Trash
           onClick={() => handleCartItemDelete(cartItem)}

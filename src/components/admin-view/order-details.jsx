@@ -56,7 +56,7 @@ function AdminOrderDetailsView({ orderDetails }) {
           </div>
           <div className="flex mt-2 items-center justify-between">
             <p className="font-medium">Giá</p>
-            <Label>${orderDetails?.totalAmount}</Label>
+            <Label>{orderDetails?.totalAmount.toLocaleString('vi-VN')} VND</Label>
           </div>
           <div className="flex mt-2 items-center justify-between">
             <p className="font-medium">Phương thức thanh toán</p>
@@ -93,7 +93,7 @@ function AdminOrderDetailsView({ orderDetails }) {
                     <li className="flex items-center justify-between">
                       <span>Tên: {item.title}</span>
                       <span>Số lượng: {item.quantity}</span>
-                      <span>Giá: ${item.price}</span>
+                      <span>Giá: {item.price.toLocaleString('vi-VN')} VND</span>
                     </li>
                   ))
                 : null}

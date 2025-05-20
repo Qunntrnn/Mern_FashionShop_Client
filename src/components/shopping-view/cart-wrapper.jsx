@@ -31,8 +31,10 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
       </div>
       <div className="mt-8 space-y-4">
         <div className="flex justify-between">
-          <span className="font-bold">Tổng giá</span>
-          <span className="font-bold">${totalCartAmount}</span>
+          <span className="font-bold">Tổng</span>
+          <span className="font-bold">
+            {totalCartAmount.toLocaleString('vi-VN')} VND
+          </span>
         </div>
       </div>
       <Button

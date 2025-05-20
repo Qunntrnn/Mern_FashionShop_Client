@@ -79,25 +79,24 @@ export const addProductFormElements = [
     ],
   },
   {
-    label: "Giá",
+    label: "Giá (VND)",
     name: "price",
     componentType: "input",
     type: "number",
     placeholder: "Nhập giá",
   },
   {
-    label: "Giá khuyến mãi",
+    label: "Giá khuyến mãi (VND)",
     name: "salePrice",
     componentType: "input",
     type: "number",
     placeholder: "Nhập giá khuyến mãi",
   },
   {
-    label: "Số lượng",
-    name: "totalStock",
-    componentType: "input",
-    type: "number",
-    placeholder: "Nhập số lượng",
+    label: "Sizes",
+    name: "sizes",
+    componentType: "sizes",
+    placeholder: "Nhập sizes và số lượng",
   },
 ];
 
