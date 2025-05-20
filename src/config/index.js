@@ -155,7 +155,7 @@ export const brandOptionsMap = {
   nike: "Nike",
   adidas: "Adidas",
   puma: "Puma",
-  levi: "Levi",
+  levi: "Levi's",
   zara: "Zara",
   "h&m": "H&M",
 };
@@ -168,7 +168,7 @@ export const filterOptions = {
     { id: "accessories", label: "Phụ kiện" },
     { id: "footwear", label: "Giày dép" },
   ],
-brands: [
+  brands: [
     { id: "nike", label: "Nike" },
     { id: "adidas", label: "Adidas" },
     { id: "puma", label: "Puma" },

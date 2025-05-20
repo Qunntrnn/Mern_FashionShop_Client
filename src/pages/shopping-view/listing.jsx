@@ -121,10 +121,21 @@ function ShoppingListing() {
   }, [filters]);
 
   useEffect(() => {
-    if (filters !== null && sort !== null)
+    if (filters !== null && sort !== null) {
+      // Convert brands to brand for backend
+      const formattedFilters = { ...filters };
+      if (formattedFilters.brands) {
+        formattedFilters.brand = formattedFilters.brands;
+        delete formattedFilters.brands;
+      }
+      
       dispatch(
-        fetchAllFilteredProducts({ filterParams: filters, sortParams: sort })
+        fetchAllFilteredProducts({ 
+          filterParams: formattedFilters, 
+          sortParams: sort 
+        })
       );
+    }
   }, [dispatch, sort, filters]);
 
   useEffect(() => {
