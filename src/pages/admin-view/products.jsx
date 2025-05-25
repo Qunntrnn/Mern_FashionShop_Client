@@ -47,10 +47,20 @@ function AdminProducts() {
 
   const updateFormData = (newData) => {
     // Calculate totalStock from sizes array
-    const totalStock = newData.sizes?.reduce((sum, size) => sum + (size.stock || 0), 0) || 0;
+    const totalStock = newData.sizes?.reduce((sum, size) => {
+      const stock = Number(size.stock) || 0;
+      return sum + stock;
+    }, 0) || 0;
+
     setFormData({
       ...newData,
-      totalStock: totalStock.toString()
+      totalStock: totalStock.toString(),
+      price: newData.price?.toString() || "",
+      salePrice: newData.salePrice?.toString() || "",
+      sizes: newData.sizes?.map(size => ({
+        ...size,
+        stock: size.stock?.toString() || "0"
+      })) || []
     });
   };
 
@@ -69,38 +79,47 @@ function AdminProducts() {
       }))
     };
 
-    currentEditedId !== null
-      ? dispatch(
-          editProduct({
-            id: currentEditedId,
-            formData: formattedData,
-          })
-        ).then((data) => {
-          console.log(data, "edit");
-
-          if (data?.payload?.success) {
-            dispatch(fetchAllProducts());
-            setFormData(initialFormData);
-            setOpenCreateProductsDialog(false);
-            setCurrentEditedId(null);
-          }
-        })
-      : dispatch(
-          addNewProduct({
+    if (currentEditedId !== null) {
+      dispatch(
+        editProduct({
+          id: currentEditedId,
+          formData: {
             ...formattedData,
-            image: uploadedImageUrl,
-          })
-        ).then((data) => {
-          if (data?.payload?.success) {
-            dispatch(fetchAllProducts());
-            setOpenCreateProductsDialog(false);
-            setImageFile(null);
-            setFormData(initialFormData);
-            toast({
-              title: "Product add successfully",
-            });
-          }
-        });
+            image: uploadedImageUrl || formattedData.image,
+          },
+        })
+      ).then((data) => {
+        if (data?.payload?.success) {
+          dispatch(fetchAllProducts());
+          setFormData(initialFormData);
+          setOpenCreateProductsDialog(false);
+          setCurrentEditedId(null);
+          setUploadedImageUrl("");
+          setImageFile(null);
+          toast({
+            title: "Sửa sản phẩm thành công",
+          });
+        }
+      });
+    } else {
+      dispatch(
+        addNewProduct({
+          ...formattedData,
+          image: uploadedImageUrl,
+        })
+      ).then((data) => {
+        if (data?.payload?.success) {
+          dispatch(fetchAllProducts());
+          setOpenCreateProductsDialog(false);
+          setImageFile(null);
+          setFormData(initialFormData);
+          setUploadedImageUrl("");
+          toast({
+            title: "Thêm sản phẩm thành công",
+          });
+        }
+      });
+    }
   }
 
   function handleDelete(getCurrentProductId) {
@@ -112,16 +131,26 @@ function AdminProducts() {
   }
 
   function isFormValid() {
-    return Object.keys(formData)
-      .filter((currentKey) => currentKey !== "averageReview")
-      .map((key) => {
-        if (key === "sizes") {
-          return formData[key] && formData[key].length > 0 && 
-                 formData[key].every(size => size.size && size.stock > 0);
-        }
-        return formData[key] !== "";
-      })
-      .every((item) => item);
+    // Kiểm tra các trường bắt buộc
+    const requiredFields = ['title', 'description', 'category', 'brand', 'price', 'sizes'];
+    const hasRequiredFields = requiredFields.every(field => {
+      if (field === 'sizes') {
+        return formData[field] && formData[field].length > 0 && 
+               formData[field].every(size => size.size && Number(size.stock) > 0);
+      }
+      return formData[field] !== "" && formData[field] !== null;
+    });
+
+    // Kiểm tra ảnh
+    const hasImage = formData.image || uploadedImageUrl;
+
+    // Log để debug
+    console.log('Form Data:', formData);
+    console.log('Uploaded Image URL:', uploadedImageUrl);
+    console.log('Has Required Fields:', hasRequiredFields);
+    console.log('Has Image:', hasImage);
+
+    return hasRequiredFields && hasImage;
   }
 
   useEffect(() => {

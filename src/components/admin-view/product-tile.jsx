@@ -36,7 +36,17 @@ function AdminProductTile({
             onClick={() => {
               setOpenCreateProductsDialog(true);
               setCurrentEditedId(product?._id);
-              setFormData(product);
+              const formattedProduct = {
+                ...product,
+                price: product.price.toString(),
+                salePrice: product.salePrice.toString(),
+                totalStock: product.totalStock.toString(),
+                sizes: product.sizes.map(size => ({
+                  ...size,
+                  stock: size.stock.toString()
+                }))
+              };
+              setFormData(formattedProduct);
             }}
           >
             Sửa
