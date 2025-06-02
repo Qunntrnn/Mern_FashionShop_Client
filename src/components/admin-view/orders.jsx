@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
+import Pagination from "@/components/common/pagination";
 import AdminOrderDetailsView from "./order-details";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -21,7 +22,7 @@ import { Badge } from "../ui/badge";
 
 function AdminOrdersView() {
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
-  const { orderList, orderDetails } = useSelector((state) => state.adminOrder);
+  const { orderList, orderDetails, pagination } = useSelector((state) => state.adminOrder);
   const dispatch = useDispatch();
 
   function handleFetchOrderDetails(getId) {
@@ -29,14 +30,16 @@ function AdminOrdersView() {
   }
 
   useEffect(() => {
-    dispatch(getAllOrdersForAdmin());
-  }, [dispatch]);
-
-  
+    dispatch(getAllOrdersForAdmin({ page: pagination.page, limit: pagination.limit }));
+  }, [dispatch, pagination.page]);
 
   useEffect(() => {
     if (orderDetails !== null) setOpenDetailsDialog(true);
   }, [orderDetails]);
+
+  const handlePageChange = (newPage) => {
+    dispatch(getAllOrdersForAdmin({ page: newPage, limit: pagination.limit }));
+  };
 
   return (
     <Card>
@@ -59,7 +62,7 @@ function AdminOrdersView() {
           <TableBody>
             {orderList && orderList.length > 0
               ? orderList.map((orderItem) => (
-                  <TableRow>
+                  <TableRow key={orderItem._id}>
                     <TableCell>{orderItem?._id}</TableCell>
                     <TableCell>{orderItem?.orderDate.split("T")[0]}</TableCell>
                     <TableCell>
@@ -99,6 +102,7 @@ function AdminOrdersView() {
               : null}
           </TableBody>
         </Table>
+        <Pagination pagination={pagination} onPageChange={handlePageChange} />
       </CardContent>
     </Card>
   );

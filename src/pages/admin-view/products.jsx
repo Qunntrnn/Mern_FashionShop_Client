@@ -16,6 +16,7 @@ import {
   editProduct,
   fetchAllProducts,
 } from "@/store/admin/products-slice";
+import Pagination from "@/components/common/pagination";
 import { Fragment, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -41,7 +42,7 @@ function AdminProducts() {
   const [imageLoadingState, setImageLoadingState] = useState(false);
   const [currentEditedId, setCurrentEditedId] = useState(null);
 
-  const { productList } = useSelector((state) => state.adminProducts);
+  const { productList, pagination } = useSelector((state) => state.adminProducts);
   const dispatch = useDispatch();
   const { toast } = useToast();
 
@@ -90,7 +91,7 @@ function AdminProducts() {
         })
       ).then((data) => {
         if (data?.payload?.success) {
-          dispatch(fetchAllProducts());
+          dispatch(fetchAllProducts({ page: pagination.page, limit: pagination.limit }));
           setFormData(initialFormData);
           setOpenCreateProductsDialog(false);
           setCurrentEditedId(null);
@@ -109,7 +110,7 @@ function AdminProducts() {
         })
       ).then((data) => {
         if (data?.payload?.success) {
-          dispatch(fetchAllProducts());
+          dispatch(fetchAllProducts({ page: pagination.page, limit: pagination.limit }));
           setOpenCreateProductsDialog(false);
           setImageFile(null);
           setFormData(initialFormData);
@@ -125,7 +126,7 @@ function AdminProducts() {
   function handleDelete(getCurrentProductId) {
     dispatch(deleteProduct(getCurrentProductId)).then((data) => {
       if (data?.payload?.success) {
-        dispatch(fetchAllProducts());
+        dispatch(fetchAllProducts({ page: pagination.page, limit: pagination.limit }));
       }
     });
   }
@@ -144,17 +145,16 @@ function AdminProducts() {
     // Kiểm tra ảnh
     const hasImage = formData.image || uploadedImageUrl;
 
-    // Log để debug
-   
-
     return hasRequiredFields && hasImage;
   }
 
   useEffect(() => {
-    dispatch(fetchAllProducts());
-  }, [dispatch]);
+    dispatch(fetchAllProducts({ page: pagination.page, limit: pagination.limit }));
+  }, [dispatch, pagination.page]);
 
-
+  const handlePageChange = (newPage) => {
+    dispatch(fetchAllProducts({ page: newPage, limit: pagination.limit }));
+  };
 
   return (
     <Fragment>
@@ -167,6 +167,7 @@ function AdminProducts() {
         {productList && productList.length > 0
           ? productList.map((productItem) => (
               <AdminProductTile
+                key={productItem._id}
                 setFormData={setFormData}
                 setOpenCreateProductsDialog={setOpenCreateProductsDialog}
                 setCurrentEditedId={setCurrentEditedId}
@@ -176,6 +177,7 @@ function AdminProducts() {
             ))
           : null}
       </div>
+      <Pagination pagination={pagination} onPageChange={handlePageChange} />
       <Sheet
         open={openCreateProductsDialog}
         onOpenChange={() => {

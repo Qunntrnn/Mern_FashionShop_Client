@@ -28,6 +28,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import Pagination from "@/components/common/pagination";
 import axios from "axios";
 import toast from "react-hot-toast";
 
@@ -36,20 +37,32 @@ function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0
+  });
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [pagination.page]);
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:5000/api/admin/users", {
-        withCredentials: true,
-      });
+      const response = await axios.get(
+        `http://localhost:5000/api/admin/users?page=${pagination.page}&limit=${pagination.limit}`,
+        { withCredentials: true }
+      );
     
       if (response.data.success) {
         setUsers(response.data.users);
+        setPagination(prev => ({
+          ...prev,
+          total: response.data.pagination.total,
+          totalPages: response.data.pagination.totalPages
+        }));
       } else {
         toast.error(response.data.message || "Failed to fetch users");
       }
@@ -59,6 +72,10 @@ function AdminUsers() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePageChange = (newPage) => {
+    setPagination(prev => ({ ...prev, page: newPage }));
   };
 
   const handleRoleChange = async (userId, newRole) => {
@@ -213,6 +230,7 @@ function AdminUsers() {
           </TableBody>
         </Table>
       </div>
+      <Pagination pagination={pagination} onPageChange={handlePageChange} />
     </div>
   );
 }

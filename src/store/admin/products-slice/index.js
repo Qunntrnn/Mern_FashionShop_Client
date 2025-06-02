@@ -4,6 +4,12 @@ import axios from "axios";
 const initialState = {
   isLoading: false,
   productList: [],
+  pagination: {
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0
+  }
 };
 
 export const addNewProduct = createAsyncThunk(
@@ -25,12 +31,12 @@ export const addNewProduct = createAsyncThunk(
 
 export const fetchAllProducts = createAsyncThunk(
   "/products/fetchAllProducts",
-  async () => {
-    const result = await axios.get(
-      "http://localhost:5000/api/admin/products/get"
+  async ({ page, limit }) => {
+    const response = await axios.get(
+      `http://localhost:5000/api/admin/products/get?page=${page}&limit=${limit}`
     );
 
-    return result?.data;
+    return response.data;
   }
 );
 
@@ -74,6 +80,7 @@ const AdminProductsSlice = createSlice({
       .addCase(fetchAllProducts.fulfilled, (state, action) => {
         state.isLoading = false;
         state.productList = action.payload.data;
+        state.pagination = action.payload.pagination;
       })
       .addCase(fetchAllProducts.rejected, (state, action) => {
         state.isLoading = false;

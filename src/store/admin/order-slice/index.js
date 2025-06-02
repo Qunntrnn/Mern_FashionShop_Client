@@ -4,13 +4,19 @@ import axios from "axios";
 const initialState = {
   orderList: [],
   orderDetails: null,
+  pagination: {
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0
+  }
 };
 
 export const getAllOrdersForAdmin = createAsyncThunk(
   "/order/getAllOrdersForAdmin",
-  async () => {
+  async ({ page, limit }) => {
     const response = await axios.get(
-      `http://localhost:5000/api/admin/orders/get`
+      `http://localhost:5000/api/admin/orders/get?page=${page}&limit=${limit}`
     );
 
     return response.data;
@@ -60,6 +66,7 @@ const adminOrderSlice = createSlice({
       .addCase(getAllOrdersForAdmin.fulfilled, (state, action) => {
         state.isLoading = false;
         state.orderList = action.payload.data;
+        state.pagination = action.payload.pagination;
       })
       .addCase(getAllOrdersForAdmin.rejected, (state) => {
         state.isLoading = false;
