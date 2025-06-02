@@ -98,6 +98,7 @@ function UserCartItemsContent({ cartItem }) {
       />
       <div className="flex-1">
         <h3 className="font-extrabold">{cartItem?.title}</h3>
+        <p className="text-sm text-gray-500">Size: {cartItem?.size}</p>
         <div className="flex items-center gap-2 mt-1">
           <Button
             variant="outline"

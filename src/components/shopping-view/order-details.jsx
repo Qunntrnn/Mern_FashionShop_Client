@@ -57,6 +57,7 @@ function ShoppingOrderDetailsView({ orderDetails }) {
                 ? orderDetails?.cartItems.map((item) => (
                     <li className="flex items-center justify-between">
                       <span>Tên: {item.title}</span>
+                      <span>Size: {item.size}</span>
                       <span>Số lượng: {item.quantity}</span>
                       <span>Giá: {item.price.toLocaleString('vi-VN')} VND</span>
                     </li>
