@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CommonForm from "../common/form";
 import { DialogContent } from "../ui/dialog";
 import { Label } from "../ui/label";
@@ -22,7 +22,14 @@ function AdminOrderDetailsView({ orderDetails }) {
   const dispatch = useDispatch();
   const { toast } = useToast();
 
-
+  // Khởi tạo giá trị trạng thái khi orderDetails thay đổi
+  useEffect(() => {
+    if (orderDetails) {
+      setFormData({
+        status: orderDetails.orderStatus
+      });
+    }
+  }, [orderDetails]);
 
   function handleUpdateStatus(event) {
     event.preventDefault();
@@ -33,8 +40,11 @@ function AdminOrderDetailsView({ orderDetails }) {
     ).then((data) => {
       if (data?.payload?.success) {
         dispatch(getOrderDetailsForAdmin(orderDetails?._id));
-        dispatch(getAllOrdersForAdmin());
-        setFormData(initialFormData);
+        dispatch(getAllOrdersForAdmin({ 
+          page: 1,
+          limit: 10 
+        }));
+        setFormData({ status: status }); // Giữ lại trạng thái mới sau khi cập nhật
         toast({
           title: data?.payload?.message,
         });
