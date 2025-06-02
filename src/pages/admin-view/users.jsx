@@ -47,7 +47,7 @@ function AdminUsers() {
       const response = await axios.get("http://localhost:5000/api/admin/users", {
         withCredentials: true,
       });
-      console.log("Users response:", response.data);
+    
       if (response.data.success) {
         setUsers(response.data.users);
       } else {

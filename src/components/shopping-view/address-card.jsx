@@ -25,7 +25,6 @@ function AddressCard({
       <CardContent className="grid p-4 gap-4">
         <Label>Địa chỉ: {addressInfo?.address}</Label>
         <Label>Tỉnh/Thành phố: {addressInfo?.city}</Label>
-    <Label>pincode: {addressInfo?.pincode}</Label>
         <Label>Số điện thoại: {addressInfo?.phone}</Label>
         <Label>Ghi chú: {addressInfo?.notes}</Label>
       </CardContent>

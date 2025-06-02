@@ -145,10 +145,7 @@ function AdminProducts() {
     const hasImage = formData.image || uploadedImageUrl;
 
     // Log để debug
-    console.log('Form Data:', formData);
-    console.log('Uploaded Image URL:', uploadedImageUrl);
-    console.log('Has Required Fields:', hasRequiredFields);
-    console.log('Has Image:', hasImage);
+   
 
     return hasRequiredFields && hasImage;
   }
@@ -157,7 +154,7 @@ function AdminProducts() {
     dispatch(fetchAllProducts());
   }, [dispatch]);
 
-  console.log(formData, "productList");
+
 
   return (
     <Fragment>

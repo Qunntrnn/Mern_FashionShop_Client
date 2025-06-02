@@ -201,14 +201,6 @@ export const addressFormControls = [
     placeholder: "Nhập tỉnh/thành phố",
   },
   {
-    label: "Pincode",
-    name: "pincode",
-    componentType: "input",
-    type: "text",
-    placeholder: "Enter your pincode",
-  },
- 
-  {
     label: "Số điện thoại",
     name: "phone",
     componentType: "input",
