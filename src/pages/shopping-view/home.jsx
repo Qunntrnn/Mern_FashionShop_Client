@@ -53,6 +53,7 @@ function ShoppingHome() {
     (state) => state.shopProducts
   );
   const { featureImageList } = useSelector((state) => state.commonFeature);
+  console.log("🚀 ~ ShoppingHome ~ featureImageList:", featureImageList)
 
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
 
@@ -106,8 +107,21 @@ function ShoppingHome() {
   }, [featureImageList]);
 
   useEffect(() => {
-    dispatch(fetchAllProducts());
+    dispatch(
+      fetchAllFilteredProducts({
+        filterParams: {},
+        sortParams: "price-lowtohigh",
+      })
+    );
   }, [dispatch]);
+
+  console.log(productList, "productList");
+
+  useEffect(() => {
+    dispatch(getFeatureImages());
+  }, [dispatch]);
+  
+  
 
   return (
     <div className="flex flex-col min-h-screen">

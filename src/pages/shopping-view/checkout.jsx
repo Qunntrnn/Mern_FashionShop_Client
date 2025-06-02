@@ -18,6 +18,8 @@ function ShoppingCheckout() {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+
+
   const totalCartAmount =
     cartItems && cartItems.items && cartItems.items.length > 0
       ? cartItems.items.reduce(
@@ -59,11 +61,15 @@ function ShoppingCheckout() {
       0
     );
 
+    console.log("Cart items:", cartItems.items);
+    console.log("Total amount:", totalCartAmount);
+
     const orderData = {
       userId: user?.id,
       cartId: cartItems?._id,
       cartItems: cartItems.items.map((singleCartItem) => {
         const price = singleCartItem?.salePrice > 0 ? singleCartItem?.salePrice : singleCartItem?.price;
+        console.log(`Item ${singleCartItem?.title} - Price: ${price}, Quantity: ${singleCartItem?.quantity}`);
         return {
           productId: singleCartItem?.productId,
           title: singleCartItem?.title,
@@ -77,6 +83,7 @@ function ShoppingCheckout() {
         addressId: currentSelectedAddress?._id,
         address: currentSelectedAddress?.address,
         city: currentSelectedAddress?.city,
+        pincode: currentSelectedAddress?.pincode,
         phone: currentSelectedAddress?.phone,
         notes: currentSelectedAddress?.notes,
       },
@@ -89,6 +96,8 @@ function ShoppingCheckout() {
       paymentId: "",
       payerId: "",
     };
+
+    console.log("Creating order with data:", orderData);
 
     dispatch(createNewOrder(orderData))
       .then((data) => {

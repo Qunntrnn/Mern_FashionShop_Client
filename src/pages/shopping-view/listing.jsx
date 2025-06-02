@@ -142,24 +142,7 @@ function ShoppingListing() {
     if (productDetails !== null) setOpenDetailsDialog(true);
   }, [productDetails]);
 
-  useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-    const category = queryParams.get("category");
-    const brand = queryParams.get("brand");
-    const search = queryParams.get("search");
-    const sort = queryParams.get("sort");
-
-    dispatch(
-      fetchAllFilteredProducts({
-        filterParams: {
-          category,
-          brand,
-          search,
-        },
-        sortParams: sort,
-      })
-    );
-  }, [location.search, dispatch]);
+  console.log(productList, "productListproductListproductList");
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 p-4 md:p-6">
