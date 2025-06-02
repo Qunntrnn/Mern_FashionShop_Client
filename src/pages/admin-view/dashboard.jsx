@@ -27,16 +27,21 @@ function AdminDashboard() {
   const { orderList } = useSelector((state) => state.adminOrder);
 
   // Calculate revenue statistics
-  const totalRevenue = orderList.reduce((sum, order) => sum + order.totalAmount, 0);
-  const totalOrders = orderList.length;
+  const totalRevenue = orderList
+    .filter(order => order.orderStatus !== "rejected")
+    .reduce((sum, order) => sum + order.totalAmount, 0);
+  
+  const totalOrders = orderList.filter(order => order.orderStatus !== "rejected").length;
   const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
   // Calculate monthly revenue
-  const monthlyRevenue = orderList.reduce((acc, order) => {
-    const month = new Date(order.orderDate).toLocaleString('vi-VN', { month: 'long' });
-    acc[month] = (acc[month] || 0) + order.totalAmount;
-    return acc;
-  }, {});
+  const monthlyRevenue = orderList
+    .filter(order => order.orderStatus !== "rejected")
+    .reduce((acc, order) => {
+      const month = new Date(order.orderDate).toLocaleString('vi-VN', { month: 'long' });
+      acc[month] = (acc[month] || 0) + order.totalAmount;
+      return acc;
+    }, {});
 
   function handleUploadFeatureImage() {
     dispatch(addFeatureImage(uploadedImageUrl)).then((data) => {
