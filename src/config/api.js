@@ -1,7 +1,8 @@
 // API Configuration
-const API_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://mern-fashion-shop-api.onrender.com/api'  // URL của server trên Render
-  : 'http://localhost:5000/api';  // URL local
+const API_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://mern-fashionshop-api.onrender.com/api" // URL của server trên Render
+    : "http://localhost:5000/api"; // URL local
 
 export const API_ENDPOINTS = {
   // Auth endpoints
@@ -30,4 +31,4 @@ export const API_ENDPOINTS = {
   COMMON: {
     FEATURE: `${API_URL}/common/feature`,
   },
-}; 
+};
