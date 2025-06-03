@@ -19,6 +19,14 @@ import {
 } from "@/store/shop/order-slice";
 import { Badge } from "../ui/badge";
 
+const orderStatusMap = {
+  pending: "Đang chờ",
+  inProcess: "Đang xử lý",
+  inShipping: "Đang giao",
+  delivered: "Đã giao",
+  rejected: "Đã huỷ"
+};
+
 function ShoppingOrders() {
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
   const dispatch = useDispatch();
@@ -36,8 +44,6 @@ function ShoppingOrders() {
   useEffect(() => {
     if (orderDetails !== null) setOpenDetailsDialog(true);
   }, [orderDetails]);
-
- 
 
   return (
     <Card>
@@ -60,20 +66,20 @@ function ShoppingOrders() {
           <TableBody>
             {orderList && orderList.length > 0
               ? orderList.map((orderItem) => (
-                  <TableRow>
+                  <TableRow key={orderItem._id}>
                     <TableCell>{orderItem?._id}</TableCell>
                     <TableCell>{orderItem?.orderDate.split("T")[0]}</TableCell>
                     <TableCell>
                       <Badge
                         className={`py-1 px-3 ${
-                          orderItem?.orderStatus === "confirmed"
+                          orderItem?.orderStatus === "delivered"
                             ? "bg-green-500"
                             : orderItem?.orderStatus === "rejected"
                             ? "bg-red-600"
                             : "bg-black"
                         }`}
                       >
-                        {orderItem?.orderStatus}
+                        {orderStatusMap[orderItem?.orderStatus] || orderItem?.orderStatus}
                       </Badge>
                     </TableCell>
                     <TableCell>{orderItem?.totalAmount.toLocaleString('vi-VN')} VND</TableCell>

@@ -104,7 +104,7 @@ function ShoppingListing() {
       }
     }
 
-    // Redirect to product details to select size
+   
     dispatch(fetchProductDetails(getCurrentProductId));
   }
 
@@ -122,7 +122,7 @@ function ShoppingListing() {
 
   useEffect(() => {
     if (filters !== null && sort !== null) {
-      // Convert brands to brand for backend
+    
       const formattedFilters = { ...filters };
       if (formattedFilters.brands) {
         formattedFilters.brand = formattedFilters.brands;

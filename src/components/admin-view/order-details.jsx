@@ -16,6 +16,14 @@ const initialFormData = {
   status: "",
 };
 
+const orderStatusMap = {
+  pending: "Đang chờ",
+  inProcess: "Đang xử lý",
+  inShipping: "Đang giao",
+  delivered: "Đã giao",
+  rejected: "Đã huỷ"
+};
+
 function AdminOrderDetailsView({ orderDetails }) {
   const [formData, setFormData] = useState(initialFormData);
   const { user } = useSelector((state) => state.auth);
@@ -81,14 +89,14 @@ function AdminOrderDetailsView({ orderDetails }) {
             <Label>
               <Badge
                 className={`py-1 px-3 ${
-                  orderDetails?.orderStatus === "confirmed"
+                  orderDetails?.orderStatus === "delivered"
                     ? "bg-green-500"
                     : orderDetails?.orderStatus === "rejected"
                     ? "bg-red-600"
                     : "bg-black"
                 }`}
               >
-                {orderDetails?.orderStatus}
+                {orderStatusMap[orderDetails?.orderStatus] || orderDetails?.orderStatus}
               </Badge>
             </Label>
           </div>

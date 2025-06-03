@@ -20,6 +20,14 @@ import {
 } from "@/store/admin/order-slice";
 import { Badge } from "../ui/badge";
 
+const orderStatusMap = {
+  pending: "Đang chờ",
+  inProcess: "Đang xử lý",
+  inShipping: "Đang giao",
+  delivered: "Đã giao",
+  rejected: "Đã huỷ"
+};
+
 function AdminOrdersView() {
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
   const { orderList, orderDetails, pagination } = useSelector((state) => state.adminOrder);
@@ -68,17 +76,17 @@ function AdminOrdersView() {
                     <TableCell>
                       <Badge
                         className={`py-1 px-3 ${
-                          orderItem?.orderStatus === "confirmed"
+                          orderItem?.orderStatus === "delivered"
                             ? "bg-green-500"
                             : orderItem?.orderStatus === "rejected"
                             ? "bg-red-600"
                             : "bg-black"
                         }`}
                       >
-                        {orderItem?.orderStatus}
+                        {orderStatusMap[orderItem?.orderStatus] || orderItem?.orderStatus}
                       </Badge>
                     </TableCell>
-                    <TableCell>${orderItem?.totalAmount}</TableCell>
+                    <TableCell>{orderItem?.totalAmount.toLocaleString('vi-VN')} VND</TableCell>
                     <TableCell>
                       <Dialog
                         open={openDetailsDialog}

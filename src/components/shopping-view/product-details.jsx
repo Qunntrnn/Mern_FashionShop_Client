@@ -54,6 +54,7 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
       if (indexOfCurrentItem > -1) {
         const getQuantity = getCartItems[indexOfCurrentItem].quantity;
         const selectedSizeStock = productDetails.sizes.find(s => s.size === selectedSize)?.stock || 0;
+        
         if (getQuantity + 1 > selectedSizeStock) {
           toast({
             title: `Chỉ còn ${selectedSizeStock} sản phẩm cho size ${selectedSize}`,
